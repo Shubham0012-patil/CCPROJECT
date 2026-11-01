@@ -11,14 +11,20 @@ import {
   RefreshCw,
   Sparkles,
   TrendingDown,
-  Activity,
   CheckCircle2,
+  Activity,
+  Cloud,
+  Lock,
+  Layers,
+  HardDrive,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { khataService } from '../services/khataService';
 import { expenseService } from '../services/expenseService';
 import { loanService } from '../services/loanService';
-import { KhataTransaction, Expense, LongTermLoan } from '../types';
+import { cloudStorageService } from '../services/cloudStorageService';
+import { KhataTransaction, Expense, LongTermLoan, CloudStorageStats } from '../types';
 
 export const DashboardPage: React.FC = () => {
   const { user, profile } = useAuth();
@@ -27,20 +33,25 @@ export const DashboardPage: React.FC = () => {
   const [khataTxs, setKhataTxs] = useState<KhataTransaction[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loans, setLoans] = useState<LongTermLoan[]>([]);
+  const [cloudStats, setCloudStats] = useState<CloudStorageStats | null>(null);
 
   const loadData = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const [kRes, eRes, lRes] = await Promise.all([
+      const [kRes, eRes, lRes, cRes] = await Promise.all([
         khataService.getTransactions(),
         expenseService.getExpenses(),
         loanService.getLoans(),
+        cloudStorageService.getStorageStats(),
       ]);
 
       setKhataTxs(kRes.data);
       setExpenses(eRes.data);
       setLoans(lRes.data);
+      if (cRes.data) {
+        setCloudStats(cRes.data);
+      }
     } catch (err) {
       console.error('Error loading dashboard data:', err);
     } finally {
@@ -51,6 +62,14 @@ export const DashboardPage: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [user]);
+
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+  };
 
   // Currency Formatter
   const formatCur = (val: number) => {
@@ -330,6 +349,68 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1">
             <span>Total Loan Contracts:</span>
             <span className="font-bold text-slate-800 dark:text-slate-200">{loans.length}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. CLOUD FILE STORAGE ARCHITECTURE OVERVIEW */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <Cloud className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                  Cloud Infrastructure
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+                  AES-256-GCM + S3
+                </span>
+              </div>
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                Private Cloud File Storage
+              </h2>
+            </div>
+          </div>
+
+          <Link
+            to="/cloud-storage"
+            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+          >
+            <span>Manage Cloud Files</span>
+            <span>&rarr;</span>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+            <span className="text-[11px] text-slate-400">Cloud Files</span>
+            <p className="text-lg font-black text-slate-900 dark:text-white mt-0.5">
+              {cloudStats?.totalFiles ?? 0}
+            </p>
+          </div>
+
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+            <span className="text-[11px] text-slate-400">Storage Used</span>
+            <p className="text-lg font-black text-indigo-600 dark:text-indigo-400 mt-0.5">
+              {formatBytes(cloudStats?.totalStorageBytes ?? 0)}
+            </p>
+          </div>
+
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+            <span className="text-[11px] text-slate-400">Encrypted Blocks</span>
+            <p className="text-lg font-black text-amber-600 dark:text-amber-400 mt-0.5">
+              {cloudStats?.encryptedFilesCount ?? 0} Files
+            </p>
+          </div>
+
+          <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+            <span className="text-[11px] text-slate-400">Recent Uploads</span>
+            <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
+              {cloudStats?.recentUploadsCount ?? 0}
+            </p>
           </div>
         </div>
       </div>

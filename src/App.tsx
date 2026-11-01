@@ -10,6 +10,7 @@ import { KhataPage } from './pages/KhataPage';
 import { ExpensesPage } from './pages/ExpensesPage';
 import { LoansPage } from './pages/LoansPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { CloudStoragePage } from './pages/CloudStoragePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Wallet, Loader2 } from 'lucide-react';
 
@@ -97,6 +98,15 @@ export default function App() {
               element={
                 <ProtectedLayout>
                   <ReportsPage />
+                </ProtectedLayout>
+              }
+            />
+
+            <Route
+              path="/cloud-storage"
+              element={
+                <ProtectedLayout>
+                  <CloudStoragePage />
                 </ProtectedLayout>
               }
             />

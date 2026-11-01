@@ -142,3 +142,64 @@ export interface DashboardStats {
     totalOutstandingTaken: number;
   };
 }
+
+export interface CloudFile {
+  id: string;
+  user_id: string;
+  file_name: string;
+  original_file_name: string;
+  file_type: string;
+  file_size: number;
+  storage_bucket: string;
+  storage_key: string;
+  encryption_algorithm: string;
+  encryption_iv?: string | null;
+  encryption_tag?: string | null;
+  chunk_count: number;
+  checksum: string;
+  upload_status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
+  category?: string;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CloudFileChunk {
+  id: string;
+  file_id: string;
+  user_id: string;
+  chunk_index: number;
+  storage_key: string;
+  chunk_size: number;
+  checksum: string;
+  encryption_iv: string;
+  encryption_tag: string;
+  created_at: string;
+}
+
+export interface CloudStorageStats {
+  totalFiles: number;
+  totalStorageBytes: number;
+  encryptedFilesCount: number;
+  recentUploadsCount: number;
+  bucketName: string;
+  cloudfrontDomain: string;
+  storageMode: 'AWS_S3' | 'LOCAL_EMULATION';
+}
+
+export interface UploadProgressState {
+  stage: 'idle' | 'preparing' | 'splitting' | 'encrypting' | 'uploading' | 'verifying' | 'completed' | 'error';
+  percent: number;
+  currentChunk?: number;
+  totalChunks?: number;
+  message: string;
+  error?: string;
+}
+
+export interface CloudFileDetails extends CloudFile {
+  chunks: CloudFileChunk[];
+  cloudfrontUrl?: string;
+  s3Uri?: string;
+  kmsKeyId?: string;
+}
+

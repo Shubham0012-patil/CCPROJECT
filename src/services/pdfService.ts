@@ -69,9 +69,9 @@ export const pdfService = {
   },
 
   /**
-   * KHATA LEDGER PDF REPORT
+   * KHATA LEDGER PDF REPORT BUILDER
    */
-  generateKhataReport(transactions: KhataTransaction[], profile: Profile | null, filterPersonName?: string) {
+  buildKhataDoc(transactions: KhataTransaction[], profile: Profile | null, filterPersonName?: string): jsPDF {
     const doc = new jsPDF();
     const title = filterPersonName ? `Khata Ledger: ${filterPersonName}` : 'Khata Ledger Report';
     this.drawHeader(doc, title, profile);
@@ -168,13 +168,19 @@ export const pdfService = {
     });
 
     this.drawFooter(doc);
+    return doc;
+  },
+
+  generateKhataReport(transactions: KhataTransaction[], profile: Profile | null, filterPersonName?: string): jsPDF {
+    const doc = this.buildKhataDoc(transactions, profile, filterPersonName);
     doc.save(`NEXMONEY_Khata_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    return doc;
   },
 
   /**
-   * EXPENSE PDF REPORT
+   * EXPENSE PDF REPORT BUILDER
    */
-  generateExpenseReport(expenses: Expense[], profile: Profile | null, periodLabel?: string) {
+  buildExpenseDoc(expenses: Expense[], profile: Profile | null, periodLabel?: string): jsPDF {
     const doc = new jsPDF();
     this.drawHeader(doc, 'Personal Expense Statement', profile, periodLabel);
 
@@ -232,13 +238,19 @@ export const pdfService = {
     });
 
     this.drawFooter(doc);
+    return doc;
+  },
+
+  generateExpenseReport(expenses: Expense[], profile: Profile | null, periodLabel?: string): jsPDF {
+    const doc = this.buildExpenseDoc(expenses, profile, periodLabel);
     doc.save(`NEXMONEY_Expense_Statement_${new Date().toISOString().split('T')[0]}.pdf`);
+    return doc;
   },
 
   /**
-   * LONG-TERM LOANS PDF REPORT
+   * LONG-TERM LOANS PDF REPORT BUILDER
    */
-  generateLoanReport(loans: LongTermLoan[], profile: Profile | null) {
+  buildLoanDoc(loans: LongTermLoan[], profile: Profile | null): jsPDF {
     const doc = new jsPDF();
     this.drawHeader(doc, 'Long-Term Loan Statement', profile);
 
@@ -323,6 +335,12 @@ export const pdfService = {
     });
 
     this.drawFooter(doc);
+    return doc;
+  },
+
+  generateLoanReport(loans: LongTermLoan[], profile: Profile | null): jsPDF {
+    const doc = this.buildLoanDoc(loans, profile);
     doc.save(`NEXMONEY_Loan_Statement_${new Date().toISOString().split('T')[0]}.pdf`);
+    return doc;
   },
 };

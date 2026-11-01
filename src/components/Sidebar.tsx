@@ -6,6 +6,7 @@ import {
   Receipt,
   Landmark,
   FileBarChart2,
+  Cloud,
   Settings,
   ShieldCheck,
 } from 'lucide-react';
@@ -41,6 +42,12 @@ export const navigationItems = [
     to: '/reports',
     icon: FileBarChart2,
     description: 'Analytics & Statements',
+  },
+  {
+    name: 'Cloud Storage',
+    to: '/cloud-storage',
+    icon: Cloud,
+    description: 'AWS S3 & Encrypted Chunks',
   },
   {
     name: 'Settings',
